@@ -1,0 +1,62 @@
+<h2>Add New Product</h2>
+      <input
+        type="text"
+        placeholder="Product ID"
+        value={newProduct.productId}
+        onChange={(e) =>
+          setNewProduct({ ...newProduct, productId: e.target.value })
+        }
+      />
+      <input
+        type="text"
+        placeholder="Description"
+        value={newProduct.description}
+        onChange={(e) =>
+          setNewProduct({ ...newProduct, description: e.target.value })
+        }
+      />
+      <input
+        type="file"
+        multiple
+        onChange={(e) =>
+          setNewProduct({ ...newProduct, images: Array.from(e.target.files) })
+        }
+      />
+      <button onClick={handleProductSubmit}>Submit</button>
+
+
+const [newProduct, setNewProduct] = useState({
+    productId: "",
+    description: "",
+    images: [],
+  });
+
+
+
+        const handleProductSubmit = () => {
+    // Add or update a product for the user
+    fetch(
+      `https://floating-shore-52389-ec1ab93f1be3.herokuapp.com/product/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "store-name": "Nishant",
+          hashed_password: user.hashed_password,
+        },
+        body: JSON.stringify(newProduct),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        // Update products list with the new or updated product
+        setProducts([...products, data]);
+        // Clear the new product form
+        setNewProduct({
+          productId: "",
+          description: "",
+          images: [],
+        });
+      })
+      .catch((error) => console.error("Error adding/updating product:", error));
+  };
