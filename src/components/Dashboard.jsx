@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../services/AuthContext";
+import { useAuth } from "../services/Authcontext";
 import dropdown from "../assets/dropdown.svg";
 import {
   getUserDetails,
