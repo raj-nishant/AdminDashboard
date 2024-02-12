@@ -22,7 +22,7 @@ export async function getUserProducts(userId, hashedPassword) {
   return response.json();
 }
 
-export async function uploadProduct(userId, hashedPassword, formData) {
+export async function submitProduct(userId, hashedPassword, formData) {
   const response = await fetch(`${API_BASE_URL}/product/${userId}`, {
     method: "PUT",
     headers: {
@@ -31,7 +31,9 @@ export async function uploadProduct(userId, hashedPassword, formData) {
     },
     body: formData,
   });
-  return response.json();
+  if (!response.ok) {
+    throw new Error("Failed to submit product");
+  }
 }
 
 export async function deleteUserProduct(userId, productId, hashedPassword) {

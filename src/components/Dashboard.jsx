@@ -4,20 +4,18 @@ import { useAuth } from "./AuthContext";
 import {
   getUserDetails,
   getUserProducts,
-  deleteUserProduct,
-} from "../services/api";
-import ProductModal from "./ProductModal";
+  submitProduct,
+} from "../services/api"; // assuming you have a submitProduct function in your API service
 
 function Dashboard() {
   const { userId } = useParams();
   const { user, logout } = useAuth();
   const [userDetails, setUserDetails] = useState(null);
   const [products, setProducts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
   const [newProduct, setNewProduct] = useState({
-    productId: "",
+    id: "",
     description: "",
-    images: [],
+    image: null,
   });
   const navigate = useNavigate();
 
@@ -47,58 +45,45 @@ function Dashboard() {
     navigate("/");
   };
 
-  const handleModalOpen = () => {
-    setShowModal(true);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
+  const handleImageChange = (e) => {
+    setNewProduct({ ...newProduct, image: e.target.files[0] });
   };
 
-  const handleProductSubmit = () => {
-    // Add or update a product for the user
-    fetch(
-      `https://floating-shore-52389-ec1ab93f1be3.herokuapp.com/product/${userId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "store-name": "Nishant",
-          hashed_password: user.hashed_password,
-        },
-        body: JSON.stringify(newProduct),
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        // Update products list with the new or updated product
-        setProducts([...products, data]);
-        // Clear the new product form
-        setNewProduct({
-          productId: "",
-          description: "",
-          images: [],
-        });
-        // Close the modal
-        setShowModal(false);
-      })
-      .catch((error) => console.error("Error adding/updating product:", error));
-  };
-
-  const handleDeleteProduct = async (productId) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await deleteUserProduct(userId, productId, user.hashed_password);
-      // Filter out the deleted product from the products list
-      setProducts(products.filter((product) => product.id !== productId));
+      const formData = new FormData();
+      formData.append("id", "");
+      formData.append("description", newProduct.description);
+      formData.append("image", newProduct.image);
+
+      // Assuming you have a submitProduct function in your API service
+      await submitProduct(userId, user.hashed_password, formData);
+
+      // Assuming you have a getUserProducts function to refresh the products list
+      const updatedProducts = await getUserProducts(
+        userId,
+        user.hashed_password
+      );
+      setProducts(updatedProducts);
+
+      // Clear the form after successful submission
+      setNewProduct({ id: "", description: "", image: null });
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error("Error submitting product:", error);
     }
   };
 
   return (
-    <>
-      <div className="px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4 mb-8 rounded-lg">
+    <div className="container mx-auto px-4 py-8">
+      <div className="relative">
+        <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
+        <div className="absolute inset-x-0 top-0 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4">
           {userDetails && (
             <div className="text-white text-center md:text-left mb-4 md:mb-0">
               <p className="text-lg">Name: {userDetails.name}</p>
@@ -107,58 +92,73 @@ function Dashboard() {
           )}
           <button
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+            className="ml-0 md:ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
           >
             Logout
           </button>
         </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={handleModalOpen}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg"
-          >
-            Add Product
-          </button>
-        </div>
-
-        <h2 className="text-2xl font-bold mt-8 mb-4">Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden"
-            >
-              <img
-                src={product.images[0]}
-                alt={product.description}
-                className="w-full h-64 object-cover object-center"
-              />
-              <div className="px-6 py-4">
-                <h3 className="text-xl font-semibold mb-2">
-                  {product.description}
-                </h3>
-                <button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Modal */}
-        <ProductModal
-          showModal={showModal}
-          handleModalClose={handleModalClose}
-          handleProductSubmit={handleProductSubmit}
-          newProduct={newProduct}
-          setNewProduct={setNewProduct}
-        />
       </div>
-    </>
+
+      <h2 className="text-2xl font-bold mt-8">Products</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden"
+          >
+            <img
+              src={product.images[0]}
+              alt={product.description}
+              className="w-full h-64 object-cover object-center"
+            />
+            <div className="px-6 py-4">
+              <h3 className="text-xl font-semibold mb-2">
+                {product.description}
+              </h3>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="text-2xl font-bold mt-8">Add New Product</h2>
+      <form onSubmit={handleSubmit} className="mt-4">
+        <div className="mb-4">
+          <label
+            htmlFor="description"
+            className="block text-gray-700 font-bold mb-2"
+          >
+            Description
+          </label>
+          <input
+            type="text"
+            id="description"
+            name="description"
+            value={newProduct.description}
+            onChange={handleChange}
+            className="border border-gray-400 rounded-md py-2 px-3 w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="image" className="block text-gray-700 font-bold mb-2">
+            Image
+          </label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="border border-gray-400 rounded-md py-2 px-3 w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
   );
 }
 
