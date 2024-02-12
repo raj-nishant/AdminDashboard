@@ -36,11 +36,11 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: "LOGOUT" });
   };
 
-  return (
-    <AuthContext.Provider value={{ user: state.user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = { user: state.user, login, logout };
+
+  return React.createElement(AuthContext.Provider, { value }, children);
 };
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}
