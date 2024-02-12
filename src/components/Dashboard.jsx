@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+
 import {
   getUserDetails,
   getUserProducts,
   submitProduct,
+  deleteUserProduct,
 } from "../services/api"; // assuming you have a submitProduct function in your API service
 
 function Dashboard() {
@@ -15,7 +17,7 @@ function Dashboard() {
   const [newProduct, setNewProduct] = useState({
     id: "",
     description: "",
-    image: null,
+    image: null, // changed to null initially
   });
   const navigate = useNavigate();
 
@@ -50,8 +52,10 @@ function Dashboard() {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
+  const [image, setImage] = useState([]);
+
   const handleImageChange = (e) => {
-    setNewProduct({ ...newProduct, image: e.target.files[0] });
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
@@ -60,7 +64,8 @@ function Dashboard() {
       const formData = new FormData();
       formData.append("id", "");
       formData.append("description", newProduct.description);
-      formData.append("image", newProduct.image);
+      console.log(image);
+      formData.append("images", image);
 
       // Assuming you have a submitProduct function in your API service
       await submitProduct(userId, user.hashed_password, formData);
@@ -76,6 +81,16 @@ function Dashboard() {
       setNewProduct({ id: "", description: "", image: null });
     } catch (error) {
       console.error("Error submitting product:", error);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await deleteUserProduct(userId, productId, user.hashed_password);
+      // Filter out the deleted product from the products list
+      setProducts(products.filter((product) => product.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
     }
   };
 
@@ -115,6 +130,12 @@ function Dashboard() {
               <h3 className="text-xl font-semibold mb-2">
                 {product.description}
               </h3>
+              <button
+                onClick={() => handleDeleteProduct(product.id)}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
