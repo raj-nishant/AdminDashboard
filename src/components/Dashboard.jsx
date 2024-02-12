@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-
 import {
   getUserDetails,
   getUserProducts,
   submitProduct,
   deleteUserProduct,
-} from "../services/api"; // assuming you have a submitProduct function in your API service
+} from "../services/api";
+import NewProductModal from "./NewProductModal";
 
 function Dashboard() {
   const { userId } = useParams();
   const { user, logout } = useAuth();
   const [userDetails, setUserDetails] = useState(null);
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({
-    id: "",
-    description: "",
-    image: null, // changed to null initially
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,47 +43,30 @@ function Dashboard() {
     navigate("/");
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct({ ...newProduct, [name]: value });
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
-  const [image, setImage] = useState([]);
-
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleAddProduct = async (formData) => {
     try {
-      const formData = new FormData();
-      formData.append("id", "");
-      formData.append("description", newProduct.description);
-      console.log(image);
-      formData.append("images", image);
-
-      // Assuming you have a submitProduct function in your API service
       await submitProduct(userId, user.hashed_password, formData);
-
-      // Assuming you have a getUserProducts function to refresh the products list
       const updatedProducts = await getUserProducts(
         userId,
         user.hashed_password
       );
       setProducts(updatedProducts);
-
-      // Clear the form after successful submission
-      setNewProduct({ id: "", description: "", image: null });
     } catch (error) {
-      console.error("Error submitting product:", error);
+      console.error("Error adding product:", error);
     }
   };
 
   const handleDeleteProduct = async (productId) => {
     try {
       await deleteUserProduct(userId, productId, user.hashed_password);
-      // Filter out the deleted product from the products list
       setProducts(products.filter((product) => product.id !== productId));
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -96,25 +75,38 @@ function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="relative">
-        <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
-        <div className="absolute inset-x-0 top-0 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4">
-          {userDetails && (
-            <div className="text-white text-center md:text-left mb-4 md:mb-0">
-              <p className="text-lg">Name: {userDetails.name}</p>
-              <p className="text-lg">Email: {userDetails.email}</p>
-            </div>
-          )}
-          <button
-            onClick={handleLogout}
-            className="ml-0 md:ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Logout
-          </button>
-        </div>
+      <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
+      <div className="absolute inset-x-0 top-0 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4">
+        {userDetails && (
+          <div className="text-white text-center md:text-left mb-4 md:mb-0">
+            <p className="text-lg">Name: {userDetails.name}</p>
+            <p className="text-lg">Email: {userDetails.email}</p>
+          </div>
+        )}
+        <button
+          onClick={handleLogout}
+          className="ml-0 md:ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Logout
+        </button>
       </div>
 
-      <h2 className="text-2xl font-bold mt-8">Products</h2>
+      <div className="flex justify-between m-5">
+        <h2 className="text-2xl font-bold mt-8">Products</h2>
+        <button
+          onClick={handleOpenModal}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-8"
+        >
+          Add New Product
+        </button>
+
+        <NewProductModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleAddProduct}
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {products.map((product) => (
           <div
@@ -140,45 +132,6 @@ function Dashboard() {
           </div>
         ))}
       </div>
-
-      <h2 className="text-2xl font-bold mt-8">Add New Product</h2>
-      <form onSubmit={handleSubmit} className="mt-4">
-        <div className="mb-4">
-          <label
-            htmlFor="description"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Description
-          </label>
-          <input
-            type="text"
-            id="description"
-            name="description"
-            value={newProduct.description}
-            onChange={handleChange}
-            className="border border-gray-400 rounded-md py-2 px-3 w-full"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="image" className="block text-gray-700 font-bold mb-2">
-            Image
-          </label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="border border-gray-400 rounded-md py-2 px-3 w-full"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Submit
-        </button>
-      </form>
     </div>
   );
 }
