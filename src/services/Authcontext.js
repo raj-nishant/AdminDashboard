@@ -23,7 +23,7 @@ const reducer = (state, action) => {
   }
 };
 
-const AuthContext = createContext();
+const Authcontext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -38,9 +38,9 @@ export const AuthProvider = ({ children }) => {
 
   const value = { user: state.user, login, logout };
 
-  return React.createElement(AuthContext.Provider, { value }, children);
+  return React.createElement(Authcontext.Provider, { value }, children);
 };
 
 export function useAuth() {
-  return useContext(AuthContext);
+  return useContext(Authcontext);
 }
