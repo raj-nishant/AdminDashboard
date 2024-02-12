@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -7,6 +8,17 @@ function RegisterPage() {
   const [referralCode, setReferralCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let redirectTimer;
+    if (successMessage) {
+      redirectTimer = setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    }
+    return () => clearTimeout(redirectTimer);
+  }, [successMessage, navigate]);
 
   const handleRegister = async () => {
     try {
@@ -27,10 +39,14 @@ function RegisterPage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to register");
+        if (response.status === 409) {
+          throw new Error("Email is already in use");
+        } else {
+          throw new Error("Failed to register");
+        }
       }
 
-      setSuccessMessage("Registration successful");
+      setSuccessMessage("Registration successful, redirecting to login......");
       setErrorMessage("");
     } catch (error) {
       setErrorMessage(error.message);
@@ -39,46 +55,52 @@ function RegisterPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-4 border rounded shadow-lg">
-      <h2 className="text-xl mb-4">Register</h2>
-      {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-      {successMessage && (
-        <p className="text-green-500 mb-4">{successMessage}</p>
-      )}
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="text"
-        placeholder="Referral Code (Optional)"
-        value={referralCode}
-        onChange={(e) => setReferralCode(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <button
-        onClick={handleRegister}
-        className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition duration-200"
-      >
-        Register
-      </button>
+    <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-screen flex justify-center items-center">
+      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        {errorMessage && (
+          <p className="text-red-500 mb-4 text-center">{errorMessage}</p>
+        )}
+        {successMessage && (
+          <p className="text-green-500 mb-4 font-bold text-center">
+            {successMessage}
+          </p>
+        )}
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full p-2 mb-2 border rounded"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 mb-2 border rounded"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 mb-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Referral Code (Optional)"
+          value={referralCode}
+          onChange={(e) => setReferralCode(e.target.value)}
+          className="w-full p-2 mb-2 border rounded"
+        />
+        <button
+          onClick={handleRegister}
+          className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition duration-200"
+        >
+          Register
+        </button>
+      </div>
     </div>
   );
 }

@@ -120,7 +120,7 @@ function Dashboard() {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block w-full bg-red-600 text-left px-4 py-2 text-sm text-white hover:bg-gray-500 hover:text-black"
                 >
                   Logout
                 </button>

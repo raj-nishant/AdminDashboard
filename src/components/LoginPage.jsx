@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../services/Authcontext";
 
 function LoginPage() {
@@ -41,29 +41,39 @@ function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-4 border rounded shadow-lg">
-      <h2 className="text-xl mb-4">Login</h2>
-      {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <button
-        onClick={handleLogin}
-        className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition duration-200"
-      >
-        Login
-      </button>
+    <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-screen flex justify-center items-center">
+      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-xl">
+        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+        {errorMessage && (
+          <p className="text-red-500 mb-4 text-center">{errorMessage}</p>
+        )}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 mb-2 border rounded"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+        />
+        <button
+          onClick={handleLogin}
+          className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition duration-200"
+        >
+          Login
+        </button>
+        <div className="mt-4 text-center">
+          <p className="mb-2">Don't have an account?</p>
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Register here
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
