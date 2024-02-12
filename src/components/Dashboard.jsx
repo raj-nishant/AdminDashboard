@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import dropdown from "../assets/dropdown.svg";
 import {
   getUserDetails,
   getUserProducts,
@@ -15,6 +16,8 @@ function Dashboard() {
   const [userDetails, setUserDetails] = useState(null);
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,66 +76,103 @@ function Dashboard() {
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
-      <div className="absolute inset-x-0 top-0 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4">
-        {userDetails && (
-          <div className="text-white text-center md:text-left mb-4 md:mb-0">
-            <p className="text-lg">Name: {userDetails.name}</p>
-            <p className="text-lg">Email: {userDetails.email}</p>
-          </div>
-        )}
-        <button
-          onClick={handleLogout}
-          className="ml-0 md:ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Logout
-        </button>
-      </div>
-
-      <div className="flex justify-between m-5">
-        <h2 className="text-2xl font-bold mt-8">Products</h2>
-        <button
-          onClick={handleOpenModal}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-8"
-        >
-          Add New Product
-        </button>
-
-        <NewProductModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleAddProduct}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden"
+    <>
+      <div className="top-0 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-500 to-purple-500 p-4">
+        <div className="relative">
+          <button
+            onClick={toggleDropdown}
+            className="text-white ml-4 focus:outline-none"
           >
-            <img
-              src={product.images[0]}
-              alt={product.description}
-              className="w-full h-64 object-cover object-center"
-            />
-            <div className="px-6 py-4">
-              <h3 className="text-xl font-semibold mb-2">
-                {product.description}
-              </h3>
-              <button
-                onClick={() => handleDeleteProduct(product.id)}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
-              >
-                Delete
-              </button>
+            {userDetails && (
+              <span className="font-bold">{userDetails.name}</span>
+            )}
+            <img className="h-7" src={dropdown} alt="" />
+          </button>
+          {isDropdownOpen && (
+            <div
+              ref={dropdownRef}
+              className="right-0 mt-2 bg-white rounded-md shadow-lg z-10"
+            >
+              <div className="py-1">
+                {userDetails && (
+                  <div className="px-4 py-2">
+                    <p className="text-gray-700">{userDetails.name}</p>
+                    <p className="text-gray-700">{userDetails.email}</p>
+                  </div>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
-    </div>
+      <div className="mx-auto p-4">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold mt-8 md:mt-0">Products</h2>
+          <button
+            onClick={handleOpenModal}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-8 md:mt-0"
+          >
+            Add New Product
+          </button>
+
+          <NewProductModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onSubmit={handleAddProduct}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="border rounded-md text-center shadow-md bg-zinc-100 hover:transform hover:scale-105 transition-transform duration-300 hover:shadow-lg"
+            >
+              <img
+                src={product.images[0]}
+                alt={image}
+                className="w-full h-60 object-cover rounded-t-md"
+              />
+              <div className="px-6 py-4">
+                <h3 className="text-lg font-semibold mb-2 overflow-hidden">
+                  {product.description}
+                </h3>
+                <button
+                  onClick={() => handleDeleteProduct(product.id)}
+                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 

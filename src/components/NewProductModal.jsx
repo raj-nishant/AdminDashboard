@@ -32,7 +32,7 @@ function NewProductModal({ isOpen, onClose, onSubmit }) {
       <div className="modal-content bg-white w-96 p-6 rounded-lg">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+          className="float-right font-bold text-red-700 hover:text-gray-800"
         >
           Close
         </button>
