@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom"; // Import Link
 import { useAuth } from "../services/Authcontext";
 import dropdown from "../assets/dropdown.svg";
 import {
@@ -64,15 +64,6 @@ function Dashboard() {
       setProducts(updatedProducts);
     } catch (error) {
       console.error("Error adding product:", error);
-    }
-  };
-
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await deleteUserProduct(userId, productId, user.hashed_password);
-      setProducts(products.filter((product) => product.id !== productId));
-    } catch (error) {
-      console.error("Error deleting product:", error);
     }
   };
 
@@ -147,28 +138,26 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {console.log(products)}
           {products.map((product) => (
-            <div
+            <Link
               key={product.id}
-              className="border rounded-md text-center shadow-md bg-zinc-100 hover:transform hover:scale-105 transition-transform duration-300 hover:shadow-lg"
+              to={`/product/${user.id}/${product.id}`} // Link to the product detail page
+              className="product-link"
             >
-              <img
-                src={product.images[0]}
-                alt={image}
-                className="w-full h-60 object-cover rounded-t-md"
-              />
-              <div className="px-6 py-4">
-                <h3 className="text-lg font-semibold mb-2 overflow-hidden">
-                  {product.description}
-                </h3>
-                <button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
-                >
-                  Delete
-                </button>
+              <div className="border rounded-md text-center shadow-md bg-zinc-100 hover:transform hover:scale-105 transition-transform duration-300 hover:shadow-lg">
+                <img
+                  src={product.images[0]}
+                  alt={product.description} // Use product.description here
+                  className="w-full h-60 object-cover rounded-t-md"
+                />
+                <div className="px-6 py-4">
+                  <h3 className="text-lg font-semibold mb-2 overflow-hidden">
+                    {product.description}
+                  </h3>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
