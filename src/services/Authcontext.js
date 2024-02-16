@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }) => {
       // If user data exists, dispatch LOGIN action with stored user data
       dispatch({ type: "LOGIN", payload: storedUser });
     } else {
-      // If no user data in localStorage, set loading to false
-      dispatch({ type: "SET_LOADING_FALSE" });
+      // If no user data in localStorage, dispatch LOGIN action with null payload
+      dispatch({ type: "LOGIN", payload: null });
     }
   }, []);
 
