@@ -1,55 +1,77 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
+import { configureStore, createSlice } from "@reduxjs/toolkit";
+import React from "react";
 
+// Initial state
 const initialState = {
   user: null,
   loading: true, // Add loading state to track asynchronous loading
 };
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "LOGIN":
-      localStorage.setItem("user", JSON.stringify(action.payload));
-      return {
-        ...state,
-        user: action.payload,
-        loading: false, // Set loading to false after user data is set
-      };
-    case "LOGOUT":
-      localStorage.removeItem("user");
-      return {
-        ...state,
-        user: null,
-        loading: false, // Set loading to false after logout
-      };
-    default:
-      return state;
-  }
-};
+// Slice
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {
+    loginUser(state, action) {
+      state.user = action.payload;
+      state.loading = false;
+    },
+    logoutUser(state) {
+      state.user = null;
+      state.loading = false;
+    },
+  },
+});
+
+// Action creators
+export const { loginUser, logoutUser } = authSlice.actions;
+
+// Reducer
+const authReducer = authSlice.reducer;
+
+// Create Redux store
+const store = configureStore({
+  reducer: {
+    auth: authReducer,
+  },
+});
+
+// AuthContext
 const Authcontext = createContext();
+
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
     // Check if user data exists in localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
-      // If user data exists, dispatch LOGIN action with stored user data
-      dispatch({ type: "LOGIN", payload: storedUser });
-    } else {
-      // If no user data in localStorage, dispatch LOGIN action with null payload
-      dispatch({ type: "LOGIN", payload: null });
+      dispatch(loginUser(storedUser)); // Dispatch loginUser action if user data exists in localStorage
     }
   }, []);
 
   const login = (userData) => {
-    dispatch({ type: "LOGIN", payload: userData });
+    // Store user data in Redux
+    dispatch(loginUser(userData));
+    // Store user data in localStorage
+    localStorage.setItem("user", JSON.stringify(userData));
   };
+
   const logout = () => {
-    dispatch({ type: "LOGOUT" });
+    // Clear user data from Redux
+    dispatch(logoutUser());
+    // Clear user data from localStorage
+    localStorage.removeItem("user");
   };
+
   const value = { user: state.user, login, logout };
+
   return React.createElement(Authcontext.Provider, { value }, children);
 };
+
 export function useAuth() {
   return useContext(Authcontext);
 }
+
+export default store;
