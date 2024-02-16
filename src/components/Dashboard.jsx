@@ -6,7 +6,6 @@ import {
   getUserDetails,
   getUserProducts,
   submitProduct,
-  deleteUserProduct,
 } from "../services/api";
 import NewProductModal from "./NewProductModal";
 

@@ -2,13 +2,14 @@ import React, { useState } from "react";
 
 function NewProductModal({ isOpen, onClose, onSubmit }) {
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
 
   const handleChange = (e) => {
     if (e.target.name === "description") {
       setDescription(e.target.value);
-    } else if (e.target.name === "image") {
-      setImage(e.target.files[0]);
+    } else if (e.target.name === "images") {
+      const files = Array.from(e.target.files);
+      setImages(files);
     }
   };
 
@@ -16,10 +17,15 @@ function NewProductModal({ isOpen, onClose, onSubmit }) {
     e.preventDefault();
     const formData = new FormData();
     formData.append("description", description);
-    formData.append("images", image);
+
+    // Append each image to the FormData object
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+
     onSubmit(formData);
     setDescription("");
-    setImage(null);
+    setImages([]);
     onClose();
   };
 
@@ -56,16 +62,17 @@ function NewProductModal({ isOpen, onClose, onSubmit }) {
           </div>
           <div className="mb-4">
             <label
-              htmlFor="image"
+              htmlFor="images"
               className="block text-gray-700 font-bold mb-2"
             >
-              Image
+              Images
             </label>
             <input
               type="file"
-              id="image"
-              name="image"
+              id="images"
+              name="images"
               accept="image/*"
+              multiple // Allow multiple file selection
               onChange={handleChange}
               className="border border-gray-400 rounded-md py-2 px-3 w-full"
             />
