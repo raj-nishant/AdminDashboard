@@ -31,7 +31,7 @@ function NewProductModal({ isOpen, onClose, onSubmit }) {
 
   return (
     <div
-      className={`modal ${
+      className={`${
         isOpen ? "block" : "hidden"
       } fixed w-full h-full top-0 left-0 flex items-center justify-center bg-black bg-opacity-50`}
     >

@@ -15,7 +15,7 @@ function RegisterPage() {
     if (successMessage) {
       redirectTimer = setTimeout(() => {
         navigate("/");
-      }, 3000);
+      }, 2000);
     }
     return () => clearTimeout(redirectTimer);
   }, [successMessage, navigate]);

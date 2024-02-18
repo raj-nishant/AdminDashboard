@@ -6,8 +6,10 @@ import {
   getUserDetails,
   getUserProducts,
   submitProduct,
+  deleteUserAccount,
 } from "../services/api";
 import NewProductModal from "./NewProductModal";
+import DeleteAccountModal from "./DeleteAccountModal";
 
 function Dashboard() {
   const { userId } = useParams();
@@ -15,6 +17,7 @@ function Dashboard() {
   const [userDetails, setUserDetails] = useState(null);
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -45,12 +48,25 @@ function Dashboard() {
     navigate("/");
   };
 
+  async function handleDeleteAccount() {
+    await deleteUserAccount(userId, user.hashed_password);
+    alert("Your Account has been deleted");
+    navigate("/");
+  }
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
   };
 
   const handleAddProduct = async (formData) => {
@@ -96,6 +112,7 @@ function Dashboard() {
             )}
             <img className="h-7" src={dropdown} alt="" />
           </button>
+
           {isDropdownOpen && (
             <div
               ref={dropdownRef}
@@ -110,15 +127,31 @@ function Dashboard() {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="block w-full bg-red-600 text-left px-4 py-2 text-sm text-white hover:bg-gray-500 hover:text-black"
+                  className="block w-full bg-red-600 text-left px-4 py-2 text-sm border-black border-2 text-white hover:bg-gray-500 hover:text-black"
                 >
                   Logout
                 </button>
+
+                <button
+                  onClick={handleOpenDeleteModal}
+                  className="block w-full bg-red-600 text-left px-4 py-2 text-sm border-black border-2 mt-1 text-white hover:bg-gray-500 hover:text-black"
+                >
+                  Delete Account
+                </button>
+
+                {isDeleteModalOpen && (
+                  <DeleteAccountModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={handleCloseDeleteModal}
+                    onDelete={handleDeleteAccount}
+                  />
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
+
       <div className="mx-auto p-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8">
           <h2 className="text-2xl font-bold mt-8 md:mt-0">Products</h2>

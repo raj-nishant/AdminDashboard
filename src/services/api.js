@@ -57,3 +57,41 @@ export async function deleteUserProduct(userId, productId, hashedPassword) {
     throw new Error("Error deleting product:", error);
   }
 }
+
+export async function deleteUserAccount(userId, hashedPassword) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "store-name": "Nishant",
+        hashed_password: hashedPassword,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete account");
+    }
+  } catch (error) {
+    throw new Error("Error deleting account:", error);
+  }
+}
+
+export async function editUserProduct(userId, hashedPassword) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/product/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "store-name": "Nishant",
+        hashed_password: hashedPassword,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to Edit product");
+    }
+  } catch (error) {
+    throw new Error("Error Editing product:", error);
+  }
+}
