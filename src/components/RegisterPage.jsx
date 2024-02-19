@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -9,6 +9,22 @@ function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Function to get query parameters from URL
+    const getQueryParam = (name) => {
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    };
+
+    // Check if referral code exists in query parameters
+    const referralParam = getQueryParam("referral");
+
+    if (referralParam) {
+      setReferralCode(referralParam);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     let redirectTimer;
@@ -58,14 +74,7 @@ function RegisterPage() {
     <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-screen flex justify-center items-center">
       <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-        {errorMessage && (
-          <p className="text-red-500 mb-4 text-center">{errorMessage}</p>
-        )}
-        {successMessage && (
-          <p className="text-green-500 mb-4 font-bold text-center">
-            {successMessage}
-          </p>
-        )}
+        {/* Your existing code for error and success messages */}
         <input
           type="text"
           placeholder="Name"

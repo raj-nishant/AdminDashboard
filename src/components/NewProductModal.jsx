@@ -33,7 +33,7 @@ function NewProductModal({ isOpen, onClose, onSubmit }) {
     <div
       className={`${
         isOpen ? "block" : "hidden"
-      } fixed w-full h-full top-0 left-0 flex items-center justify-center bg-black bg-opacity-50`}
+      } fixed w-full h-full top-0 left-0 flex items-center justify-center bg-black bg-opacity-50 z-50`}
     >
       <div className="modal-content bg-white w-96 p-6 rounded-lg">
         <button
